@@ -1,0 +1,51 @@
+# Unity-generated folders
+Library/
+Temp/
+Obj/
+Build/
+Builds/
+Logs/
+UserSettings/
+
+# Cache directories
+.vscode/
+.idea/
+.Collab/
+
+# OS-specific files
+.DS_Store
+.Trashes
+Thumbs.db
+Desktop.ini
+
+# Version control metadata
+*.pidb
+*.suo
+*.user
+*.userprefs
+*.unityproj
+*.swp
+*.tmp
+*.log
+
+# Large files (managed by Git LFS)
+*.psd
+*.png
+*.jpg
+*.tga
+*.tif
+*.fbx
+*.obj
+*.blend
+*.prefab
+*.mp4
+*.wav
+*.mp3
+*.ogg
+*.ttf
+*.otf
+*.dll
+*.arr
+*.so
+*.dylib
+
