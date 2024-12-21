@@ -12,29 +12,105 @@ public class S_UpdateGlobalVars : MonoBehaviour
     // Reference to S_GlobalVars
     private S_GlobalVars globalVars;
 
+    // GameObject whose material will be monitored
+    [Tooltip("The GameObject whose material changes are monitored")]
+    public GameObject TargetGameObject;
+
+    // Target material to check against
+    [Tooltip("The material that determines if LocalValue is true")]
+    public Material TargetMaterial;
+
+    // Track the previous material
+    private Material previousMaterial;
+
+    // Initialize everything via SetStart
     public void SetStart()
     {
-        // Get the S_GlobalVars component from the parent object
+        Debug.Log("Initializing S_UpdateGlobalVars...");
+
+        // Try to get the S_GlobalVars component from the parent object
         globalVars = transform.parent.GetComponent<S_GlobalVars>();
 
+        // If not found on the parent, search the scene for S_GlobalVars
         if (globalVars == null)
         {
-            Debug.LogError("S_GlobalVars script not found on parent object!");
+            globalVars = FindObjectOfType<S_GlobalVars>();
+            if (globalVars == null)
+            {
+                Debug.LogError("S_GlobalVars script not found in the scene!");
+            }
+            else
+            {
+                Debug.Log("Found S_GlobalVars script in the scene.");
+            }
         }
 
-        // Ensure LocalValue is false on start (it's already set in the declaration, but this is for safety)
-        LocalValue = false;
+        if (TargetGameObject == null)
+        {
+            Debug.LogError("TargetGameObject is not assigned! Please assign it in the Inspector.");
+            return;
+        }
+
+        // Cache the initial material of the TargetGameObject
+        Renderer targetRenderer = TargetGameObject.GetComponent<Renderer>();
+        if (targetRenderer != null)
+        {
+            previousMaterial = targetRenderer.sharedMaterial;
+        }
+        else
+        {
+            Debug.LogError("TargetGameObject does not have a Renderer component!");
+        }
     }
 
-    // Method to update the global variable
-    public void SetGarment(bool value)
+    void Update()
     {
-        LocalValue = value; // Update the local value
+        if (TargetGameObject == null) return;
 
-        // Ensure that the globalVars reference is valid and the VariableName is provided
-        if (globalVars == null || string.IsNullOrEmpty(VariableName))
+        // Continuously check if the material on TargetGameObject has changed
+        Renderer targetRenderer = TargetGameObject.GetComponent<Renderer>();
+        if (targetRenderer != null && targetRenderer.sharedMaterial != previousMaterial)
         {
-            Debug.LogError("Cannot update global variable: Invalid reference or VariableName.");
+            // Material has changed
+            previousMaterial = targetRenderer.sharedMaterial;
+            CheckMaterialAndSetVariable();
+        }
+    }
+
+    private void CheckMaterialAndSetVariable()
+    {
+        // Determine LocalValue based on the current material
+        Renderer targetRenderer = TargetGameObject.GetComponent<Renderer>();
+        if (targetRenderer != null)
+        {
+            Debug.Log($"Current Material: {targetRenderer.sharedMaterial.name}, Target Material: {TargetMaterial.name}");
+            
+            if (targetRenderer.sharedMaterial == TargetMaterial)
+            {
+                LocalValue = true;
+                Debug.Log("now it is TRUEEEEE");
+            }
+            else
+            {
+                LocalValue = false;
+                Debug.Log("now it is FALSEEEEEE");
+            }
+        }
+
+        UpdateGlobalVariable(); // Update the global variable with the new value
+    }
+
+    private void UpdateGlobalVariable()
+    {
+        if (globalVars == null)
+        {
+            Debug.LogError("globalVars is null! Ensure S_GlobalVars is attached to the parent GameObject or is found in the scene.");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(VariableName))
+        {
+            Debug.LogError("VariableName is not assigned or is empty!");
             return;
         }
 
